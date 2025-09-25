@@ -1,3 +1,7 @@
+# Live Demo
+
+[Run Calculator](https://pavanteja201107.github.io/Probability-Distribution-Calculator/)
+
 # **Probability Distribution Calculator & Visualizer**
 
 An interactive web application to compute, visualize, and understand probability distributions such as Binomial, Negative Binomial, Geometric, and Poisson.
