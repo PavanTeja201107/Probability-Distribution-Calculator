@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Probability Distribution Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 50px auto;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-size: 2.2rem;
+            letter-spacing: 1px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #4caf50;
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.3);
+            outline: none;
+        }
+
+        button {
+            background: linear-gradient(45deg, #4caf50, #43a047);
+            color: #fff;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #43a047, #388e3c);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f0f4f8;
+            border-left: 5px solid #4caf50;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .result p {
+            margin: 10px 0;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+
+        canvas {
+            margin-top: 35px;
+            width: 100% !important;
+            height: 450px !important;
+            border-radius: 10px;
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            padding: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                margin: 20px;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            button {
+                font-size: 15px;
+                padding: 10px;
+            }
+        }
+
+        .info-section {
+            background: #eef6f9;
+            border-left: 5px solid #4caf50;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 8px;
+        }
+
+        .info-section.hidden {
+            display: none;
+        }
+
+        .info-btn {
+            background: #2196f3;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        .info-btn:hover {
+            background: #1976d2;
+        }
+
+        .preset-examples {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .preset-btn {
+            background: #ff9800;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .preset-btn:hover {
+            background: #fb8c00;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Probability Distribution Calculator</h1>
+
+        <button id="infoToggle" class="info-btn">Show Formulas & Definitions</button>
+        <div class="info-section hidden">
+            <h2>Probability Distribution Formulas</h2>
+            <p><strong>Binomial:</strong> P(X=k) = C(n,k) * p^k * (1-p)^(n-k), Mean = np, Variance = np(1-p)</p>
+            <p><strong>Negative Binomial:</strong> P(X=k) = C(k-1,r-1) * p^r * (1-p)^(k-r), Mean = r/p, Variance =
+                r(1-p)/p^2</p>
+            <p><strong>Geometric:</strong> P(X=k) = (1-p)^(k-1) * p, Mean = 1/p, Variance = (1-p)/p^2</p>
+            <p><strong>Poisson:</strong> P(X=k) = λ^k * e^(-λ) / k!, Mean = λ, Variance = λ</p>
+            <p><strong>Notation:</strong> n = number of trials, k = successes, r = required successes, p = success
+                probability, λ = expected events</p>
+            <p><strong>Definitions:</strong> Each distribution models different real-world events (success/failure,
+                trials until success, rare events, etc.)</p>
+        </div>
+
+        <div class="input-group">
+            <label for="dist">Select Distribution:</label>
+            <select id="dist">
+                <option value="binomial">Binomial</option>
+                <option value="negative_binomial">Negative Binomial</option>
+                <option value="geometric">Geometric</option>
+                <option value="poisson">Poisson</option>
+            </select>
+        </div>
+
+        <div class="input-group" id="p-group">
+            <label for="p">Probability (p):</label>
+            <input type="number" id="p" min="0" max="1" step="any" value="0.5" title="Probability of success (0-1)">
+        </div>
+
+        <div class="input-group" id="n-group">
+            <label for="n">Number of trials (n):</label>
+            <input type="number" id="n" min="1" step="1" value="10" title="Number of trials">
+        </div>
+
+        <div class="input-group" id="k-group">
+            <label for="k" id="k-label">Number of successes (k):</label>
+            <input type="number" id="k" min="0" step="1" value="3" title="Number of successes or occurrences">
+        </div>
+
+        <div class="input-group" id="r-group" style="display:none;">
+            <label for="r">Number of required successes (r):</label>
+            <input type="number" id="r" min="1" step="1" value="3"
+                title="Number of required successes (Negative Binomial)">
+        </div>
+
+        <div class="input-group" id="lambda-group" style="display:none;">
+            <label for="lambda">Lambda (λ):</label>
+            <input type="number" id="lambda" min="0" step="any" value="2"
+                title="Expected number of occurrences (Poisson)">
+        </div>
+
+        <div class="input-group">
+            <label for="type">Event Type:</label>
+            <select id="type">
+                <option value="exact">=</option>
+                <option value="less_than">&lt;</option>
+                <option value="greater_than">&gt;</option>
+                <option value="less_than_equal">&lt;=</option>
+                <option value="greater_than_equal">&gt;=</option>
+            </select>
+        </div>
+
+        <button id="computeBtn">Compute</button>
+
+        <div class="result">
+            <p><strong>Probability:</strong> <span id="probVal">-</span></p>
+            <p><strong>Mean:</strong> <span id="meanVal">-</span></p>
+            <p><strong>Variance:</strong> <span id="varVal">-</span></p>
+        </div>
+
+        <canvas id="pmfChart"></canvas>
+    </div>
+
+    <script>
+
+        function factorial(n) {
+            if (n === 0) return 1;
+            let res = 1;
+            for (let i = 1; i <= n; i++) res *= i;
+            return res;
+        }
+
+        function combination(n, k) {
+            if (k > n || k < 0) return 0;
+            return factorial(n) / (factorial(k) * factorial(n - k));
+        }
+
+        function binomialProbability(n, p, k) { return combination(n, k) * Math.pow(p, k) * Math.pow(1 - p, n - k); }
+        function binomialCumulativeProbability(n, p, k) { let sum = 0; for (let i = 0; i <= k; i++) sum += binomialProbability(n, p, i); return sum; }
+        function negativeBinomialProbability(r, p, k) { if (k < r) return 0; return combination(k - 1, r - 1) * Math.pow(p, r) * Math.pow(1 - p, k - r); }
+        function negativeBinomialCumulativeProbability(r, p, k) { let sum = 0; for (let i = r; i <= k; i++) sum += negativeBinomialProbability(r, p, i); return sum; }
+        function geometricProbability(p, k) { return Math.pow(1 - p, k - 1) * p; }
+        function geometricCumulativeProbability(p, k) { let sum = 0; for (let i = 1; i <= k; i++) sum += geometricProbability(p, i); return sum; }
+        function poissonProbability(lambda, k) { return Math.pow(lambda, k) * Math.exp(-lambda) / factorial(k); }
+        function poissonCumulativeProbability(lambda, k) { let sum = 0; for (let i = 0; i <= k; i++) sum += poissonProbability(lambda, i); return sum; }
+
+        const distSelect = document.getElementById('dist');
+        const nGroup = document.getElementById('n-group');
+        const rGroup = document.getElementById('r-group');
+        const lambdaGroup = document.getElementById('lambda-group');
+        const pGroup = document.getElementById('p-group');
+        const kLabel = document.getElementById('k-label');
+        let chart = null;
+
+        distSelect.addEventListener('change', () => {
+            const dist = distSelect.value;
+            nGroup.style.display = (dist === 'binomial') ? 'block' : 'none';
+            rGroup.style.display = (dist === 'negative_binomial') ? 'block' : 'none';
+            lambdaGroup.style.display = (dist === 'poisson') ? 'block' : 'none';
+            pGroup.style.display = (dist === 'poisson') ? 'none' : 'block';
+
+            if (dist === 'binomial') kLabel.textContent = "Number of successes (k):";
+            else if (dist === 'negative_binomial') kLabel.textContent = "Total trials until r-th success (k):";
+            else if (dist === 'geometric') kLabel.textContent = "Trial of first success (k):";
+            else if (dist === 'poisson') kLabel.textContent = "Number of occurrences (k):";
+        });
+
+        document.getElementById('computeBtn').addEventListener('click', () => {
+            const dist = distSelect.value;
+            const p = parseFloat(document.getElementById('p').value);
+            const n = parseInt(document.getElementById('n').value);
+            const k = parseInt(document.getElementById('k').value);
+            const r = parseInt(document.getElementById('r').value);
+            const lambda = parseFloat(document.getElementById('lambda').value);
+            const type = document.getElementById('type').value;
+
+            let prob = 0, mean = 0, variance = 0;
+            let labels = [], data = [];
+
+            if (dist === 'binomial') {
+                mean = n * p;
+                variance = n * p * (1 - p);
+                prob = computeProbability(binomialProbability, binomialCumulativeProbability, type, n, p, k);
+                for (let i = 0; i <= n; i++) { labels.push(i); data.push(binomialProbability(n, p, i)); }
+            } else if (dist === 'negative_binomial') {
+                mean = r / p;
+                variance = r * (1 - p) / (p * p);
+                prob = computeProbability(negativeBinomialProbability, negativeBinomialCumulativeProbability, type, r, p, k);
+                for (let i = r; i <= k + 10; i++) { labels.push(i); data.push(negativeBinomialProbability(r, p, i)); }
+            } else if (dist === 'geometric') {
+                mean = 1 / p;
+                variance = (1 - p) / (p * p);
+                prob = computeProbability(geometricProbability, geometricCumulativeProbability, type, p, k);
+                for (let i = 1; i <= k + 10; i++) { labels.push(i); data.push(geometricProbability(p, i)); }
+            } else if (dist === 'poisson') {
+                mean = lambda;
+                variance = lambda;
+                prob = computeProbability(poissonProbability, poissonCumulativeProbability, type, lambda, k);
+                for (let i = 0; i <= Math.ceil(lambda + 10); i++) { labels.push(i); data.push(poissonProbability(lambda, i)); }
+            }
+
+            animateProbability(prob);
+
+            document.getElementById('meanVal').textContent = mean.toFixed(6);
+            document.getElementById('varVal').textContent = variance.toFixed(6);
+
+            let bgColors = labels.map(x => {
+                switch (type) {
+                    case 'exact':
+                        return (x === k) ? 'rgba(255,99,132,0.8)' : 'rgba(75,192,192,0.6)';
+                    case 'less_than':
+                        return (x < k) ? 'rgba(255,99,132,0.8)' : 'rgba(75,192,192,0.6)';
+                    case 'less_than_equal':
+                        return (x <= k) ? 'rgba(255,99,132,0.8)' : 'rgba(75,192,192,0.6)';
+                    case 'greater_than':
+                        return (x > k) ? 'rgba(255,99,132,0.8)' : 'rgba(75,192,192,0.6)';
+                    case 'greater_than_equal':
+                        return (x >= k) ? 'rgba(255,99,132,0.8)' : 'rgba(75,192,192,0.6)';
+                    default:
+                        return 'rgba(75,192,192,0.6)';
+                }
+            });
+
+            if (chart) chart.destroy();
+            chart = new Chart(document.getElementById('pmfChart').getContext('2d'), {
+                type: 'bar',
+                data: { labels: labels, datasets: [{ label: 'P(X)', data: data, backgroundColor: bgColors, borderColor: 'rgba(75,192,192,1)', borderWidth: 1 }] },
+                options: { scales: { x: { title: { display: true, text: 'x' } }, y: { beginAtZero: true, title: { display: true, text: 'P(X=x)' } } } }
+            });
+        });
+        function computeProbability(probFunc, cumFunc, type, a, b, k) {
+            if (type === 'exact') return probFunc(a, b, k) || probFunc(a, k);
+            else if (type === 'less_than') return cumFunc(a, b, k - 1) || cumFunc(a, k - 1);
+            else if (type === 'greater_than') return 1 - (cumFunc(a, b, k) || cumFunc(a, k));
+            else if (type === 'less_than_equal') return cumFunc(a, b, k) || cumFunc(a, k);
+            else if (type === 'greater_than_equal') return 1 - (cumFunc(a, b, k - 1) || cumFunc(a, k - 1));
+        }
+        function animateProbability(target) {
+            const span = document.getElementById('probVal');
+            let displayed = 0;
+            const step = target / 50;
+            const interval = setInterval(() => {
+                displayed += step;
+                if (displayed >= target) { span.textContent = target.toFixed(6); clearInterval(interval); }
+                else span.textContent = displayed.toFixed(6);
+            }, 15);
+        }
+        document.getElementById('infoToggle').addEventListener('click', () => {
+            document.querySelector('.info-section').classList.toggle('hidden');
+            document.getElementById('infoToggle').textContent = document.querySelector('.info-section').classList.contains('hidden') ? "Show Formulas & Definitions" : "Hide Formulas & Definitions";
+        });
+        function setExample(dist) {
+            if (dist === 'binomial') { distSelect.value = 'binomial'; document.getElementById('n').value = 10; document.getElementById('p').value = 0.5; document.getElementById('k').value = 3; }
+            else if (dist === 'negative_binomial') { distSelect.value = 'negative_binomial'; document.getElementById('r').value = 3; document.getElementById('p').value = 0.5; document.getElementById('k').value = 5; }
+            else if (dist === 'geometric') { distSelect.value = 'geometric'; document.getElementById('p').value = 0.5; document.getElementById('k').value = 3; }
+            else if (dist === 'poisson') { distSelect.value = 'poisson'; document.getElementById('lambda').value = 2; document.getElementById('k').value = 1; }
+            distSelect.dispatchEvent(new Event('change'));
+        }
+    </script>
+</body>
+
+</html>
